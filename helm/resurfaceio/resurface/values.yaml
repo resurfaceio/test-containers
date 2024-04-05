@@ -169,9 +169,8 @@ kubernetes-ingress:
           targetPort: 9001
     extraArgs:
       - "--configmap-tcp-services=resurface/haproxy-extra-ports"
+      - "--configmap-errorfiles=resurface/haproxy-errorfiles"
     tolerations: *base_tolerations
-  defaultBackend:
-    enabled: false
 
 # Dependency chart: MinIO Object Storage
 minio:
