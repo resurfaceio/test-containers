@@ -43,6 +43,10 @@ echo http://$(kubectl get svc {{ include "resurface.fullname" . }}-kubernetes-in
 {{- else }} not enabled. {{ end }}
 {{- end }}
 
+{{- if .Values.integrations.axway.enabled }}
+· Axway integration is enabled.
+{{- end }}
+
 · Use the following command to list all the resources deployed with this release:
 
 helm get all {{ .Release.Name }} -n {{ .Release.Namespace }}

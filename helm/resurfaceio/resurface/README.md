@@ -119,7 +119,7 @@ The **units** values is a string equal to either `binary` or `metric`. It is use
 The **multinode** section is where the configuration to set multiple database nodes can be found.
 
 - **multinode.enabled**: boolean. If set to `true` worker nodes are enabled. Otherwise, the single-node configuration is used. Defaults to `false`
-- **multinode.workers**: integer. Number of stateful worker nodes to deploy. Resources must be available in the cluster in order to succesfully scale accordingly. The total number of nodes in the database will be **multinode.workers** + 1, since the coordinator node itself always acts as a worker node.
+- **multinode.workers**: integer. Number of stateful worker nodes to deploy. Resources mus t be available in the cluster in order to succesfully scale accordingly. The total number of nodes in the database will be **multinode.workers** + 1, since the coordinator node itself always acts as a worker node.
 
 ```yaml
 multinode:
@@ -162,8 +162,16 @@ The **minio** section corresponds to values passed to the `minio-official/minio`
     - **minio.consoleService.type**: string. Defaults to `ClusterIP`.
     - **minio.consoleService.port**: integer. Defaults to `9001`.
 
+External integrations can be configured in the **integrations** section.
 
-The **custom** section holds the values for fields that can be overriden in any default configuration. None of its fields are required. The following fields can be found nested in this section:
+- The **integrations.axway** subsection corresponds to the Axway integration.
+  - **integrations.axway.enabled**: If set to `true`, Axway polling will be enabled. Defaults to `false`.
+  - **integrations.axway.clientID**: string. Name of Axway service account. Required only if **integrations.axway.secretName** is not set.
+  - **integrations.axway.clientSecret**: string. Password for Axway service account. Required only if **integrations.axway.secretName** is not set.
+  - **integrations.axway.orgID**: string. Axway tenant identifier. Required only if **integrations.axway.secretName** is not set.
+  - **integrations.axway.secretName**: string. Name of an already existing Kubernetes Secret containing the three required fields (clientID, clientSecret, and OrgID). Required only if at least one of the **integrations.axway.clientID**, **integrations.axway.clientID**, or **integrations.axway.clientID** values is missing.
+
+The **custom** section holds the values for fields that can be overridden in any default configuration. None of its fields are required. The following fields can be found nested in this section:
 
 - The **custom.service** subsection is where the configuration for both the internal service resources can be found.
   - **custom.service.apiexplorer**: nested subsection that refers to the Resurface frontend service.
