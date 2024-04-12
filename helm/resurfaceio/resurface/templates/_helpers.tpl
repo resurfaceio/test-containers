@@ -191,6 +191,16 @@ Container resources and persistent volumes
 
 {{- end -}}
 
+{{/* Defaults for integrations */}}
+{{/* Axway */}}
+{{- if .Values.integrations.axway.enabled  -}}
+    {{- if and .Values.integrations.axway.clientID .Values.integrations.axway.clientSecret .Values.integrations.axway.orgID | or .Values.integrations.axway.secretName | not -}}
+        {{- fail "Axway integration is enabled. Please set all three 'clientID', 'clientSecret', and 'orgID' values, or set 'secretName' if secret has been created separatedly." -}}
+    {{- end -}}
+{{- end -}}
+{{- $axwaySecret := .Values.integrations.axway.secretName | default "resurface-axway-creds" -}}
+
+
 {{- /* Defaults for container resources */ -}}
 {{- $cpuReqDefault := 6 -}}
 {{- $memReqDefault := 18 -}}
@@ -239,6 +249,23 @@ Container resources and persistent volumes
               value: {{ $icebergFileFormat | quote }}
             - name: ICEBERG_COMPRESSION_CODEC
               value: {{ $icebergCompressionCodec | quote }}
+            {{- end }}
+            {{- if .Values.integrations.axway.enabled }}
+            - name: AXWAY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $axwaySecret }}
+                  key: clientID
+            - name: AXWAY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $axwaySecret }}
+                  key: clientSecret
+            - name: AXWAY_ORG_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $axwaySecret }}
+                  key: orgID
             {{- end }}
   volumeClaimTemplates:
     - metadata:

@@ -67,6 +67,14 @@ iceberg:
       max: 100
       reserved: 20
 
+integrations:
+  axway:
+    enabled: false
+    secretName:
+    clientID:
+    clientSecret:
+    orgID:
+
 custom:
   service:
     apiexplorer:
