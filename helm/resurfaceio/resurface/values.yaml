@@ -74,6 +74,11 @@ integrations:
     clientID:
     clientSecret:
     orgID:
+  tyk:
+    enabled: false
+    secretName:
+    url:
+    authSecret:
 
 custom:
   service:

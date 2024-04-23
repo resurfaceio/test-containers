@@ -199,6 +199,13 @@ Container resources and persistent volumes
     {{- end -}}
 {{- end -}}
 {{- $axwaySecret := .Values.integrations.axway.secretName | default "resurface-axway-creds" -}}
+{{/* Tyk Gateway */}}
+{{- if .Values.integrations.tyk.enabled  -}}
+    {{- if and .Values.integrations.tyk.url .Values.integrations.tyk.authSecret | or .Values.integrations.tyk.secretName | not -}}
+        {{- fail "Tyk integration is enabled. Please set both 'url' and 'authSecret', or set 'secretName' if kubernetes secret has been created separatedly." -}}
+    {{- end -}}
+{{- end -}}
+{{- $tykGWSecret := .Values.integrations.tyk.secretName | default "resurface-tyk-gw-creds" -}}
 
 
 {{- /* Defaults for container resources */ -}}
@@ -266,6 +273,18 @@ Container resources and persistent volumes
                 secretKeyRef:
                   name: {{ $axwaySecret }}
                   key: orgID
+            {{- end }}
+            {{- if .Values.integrations.tyk.enabled }}
+            - name: TYK_GW_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $tykGWSecret }}
+                  key: url
+            - name: TYK_GW_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $tykGWSecret }}
+                  key: authSecret
             {{- end }}
   volumeClaimTemplates:
     - metadata:

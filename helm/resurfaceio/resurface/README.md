@@ -171,6 +171,12 @@ External integrations can be configured in the **integrations** section.
   - **integrations.axway.orgID**: string. Axway tenant identifier. Required only if **integrations.axway.secretName** is not set.
   - **integrations.axway.secretName**: string. Name of an already existing Kubernetes Secret containing the three required fields (clientID, clientSecret, and OrgID). Required only if at least one of the **integrations.axway.clientID**, **integrations.axway.clientID**, or **integrations.axway.clientID** values is missing.
 
+- The **integrations.tyk** subsection corresponds to the Tyk Gateway integration.
+  - **integrations.tyk.enabled**: If set to `true`, Tyk Gateway polling will be enabled. Defaults to `false`.
+  - **integrations.tyk.url**: string. URL to access Tyk Gateway. Required only if **integrations.tyk.secretName** is not set.
+  - **integrations.tyk.authSecret**: string. Shared secret parameter for Tyk Gateway configuration. Required only if **integrations.tyk.secretName** is not set.
+  - **integrations.tyk.secretName**: string. Name of an already existing Kubernetes Secret containing the two required fields (url and authSecret). Required only if at least one of **integrations.tyk.url** or **integrations.tyk.authSecret** values is missing.
+
 The **custom** section holds the values for fields that can be overridden in any default configuration. None of its fields are required. The following fields can be found nested in this section:
 
 - The **custom.service** subsection is where the configuration for both the internal service resources can be found.
