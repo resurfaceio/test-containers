@@ -173,9 +173,11 @@ kubernetes-ingress:
   controller:
     service:
       type: LoadBalancer
+      externalTrafficPolicy: Local
       enablePorts:
         stat: false
-      externalTrafficPolicy: Local
+        quic: false
+        prometheus: false
       tcpPorts:
         - name: minioc
           port: 9001
@@ -183,6 +185,7 @@ kubernetes-ingress:
     extraArgs:
       - "--configmap-tcp-services=resurface/haproxy-extra-ports"
       - "--configmap-errorfiles=resurface/haproxy-errorfiles"
+      - "--disable-quic"
     tolerations: *base_tolerations
 
 # Dependency chart: MinIO Object Storage
