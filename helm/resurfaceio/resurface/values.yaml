@@ -185,7 +185,6 @@ kubernetes-ingress:
     extraArgs:
       - "--configmap-tcp-services=resurface/haproxy-extra-ports"
       - "--configmap-errorfiles=resurface/haproxy-errorfiles"
-      - "--disable-quic"
     tolerations: *base_tolerations
 
 # Dependency chart: MinIO Object Storage
