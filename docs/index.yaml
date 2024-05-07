@@ -112,6 +112,68 @@ entries:
   resurface:
   - annotations:
       artifacthub.io/changes: |
+        - kind: added
+          description: Support for API catalog integration with Axway
+        - kind: added
+          description: Support for API catalog integration with Tyk
+        - kind: added
+          description: TLS support for MinIO web console
+        - kind: added
+          description: Custom 503 error page
+        - kind: changed
+          description: Upgrade Resurface image to 3.6.102
+        - kind: changed
+          description: Upgrade HAProxy dependency chart to 1.39.2
+        - kind: changed
+          description: Upgrade MinIO dependency chart to 5.2.0
+        - kind: fixed
+          description: Mixed-protocol load balancer issue for AWS and GCP
+      artifacthub.io/containsSecurityUpdates: "true"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 3.6.102
+    created: "2024-05-07T21:22:25.56723366Z"
+    dependencies:
+      - condition: ingress.controller.enabled
+        name: kubernetes-ingress
+        repository: https://haproxytech.github.io/helm-charts
+        version: 1.39.2
+      - condition: minio.enabled
+        name: minio
+        repository: https://charts.min.io/
+        version: 5.2.0
+    description: Resurface discovers and alerts on quality and security signatures
+      in your API traffic.
+    digest: 882cd552a2dcd63175b9858514a36319eeda9cfca8d032cda92c06a220d119b9
+    home: https://resurface.io
+    icon: https://raw.githubusercontent.com/resurfaceio/insomnia-plugin/master/assets/plugin/icon-alt.svg
+    keywords:
+      - API
+      - HTTP
+      - SOAP
+      - REST
+      - GraphQL
+      - Triage
+      - Security
+      - Observability
+      - Logs
+      - Monitoring
+      - Troubleshooting
+      - Alerts
+    maintainers:
+      - email: ramon@resurface.io
+        name: Ramón Márquez
+      - email: rob@resurface.io
+        name: Rob Dickinson
+    name: resurface
+    sources:
+      - https://github.com/resurfaceio
+    type: application
+    urls:
+      - https://github.com/resurfaceio/containers/releases/download/resurface-3.7.0/resurface-3.7.0.tgz
+    version: 3.7.0
+  - annotations:
+      artifacthub.io/changes: |
         - kind: changed
           description: Upgrade Resurface image to 3.6.86
         - kind: changed
@@ -1760,4 +1822,4 @@ entries:
     urls:
     - https://github.com/resurfaceio/containers/releases/download/resurface-3.0.0/resurface-3.0.0.tgz
     version: 3.0.0
-generated: "2024-03-19T18:08:10.851481022Z"
+generated: "2024-05-07T21:22:25.567245212Z"
