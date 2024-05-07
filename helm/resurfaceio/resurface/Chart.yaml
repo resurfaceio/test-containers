@@ -1,18 +1,28 @@
 apiVersion: v2
 name: resurface
-version: 3.6.11
+version: 3.7.0
 type: application
 description: Resurface discovers and alerts on quality and security signatures in your API traffic.
 annotations:
   artifacthub.io/containsSecurityUpdates: "true"
   artifacthub.io/prerelease: "false"
   artifacthub.io/changes: |
+    - kind: added
+      description: Support for API catalog integration with Axway
+    - kind: added
+      description: Support for API catalog integration with Tyk
+    - kind: added
+      description: TLS support for MinIO web console
+    - kind: added
+      description: Custom 503 error page
     - kind: changed
-      description: Upgrade Resurface image to 3.6.86
+      description: Upgrade Resurface image to 3.6.102
     - kind: changed
-      description: Upgrade HAProxy dependency chart to 1.38.2
+      description: Upgrade HAProxy dependency chart to 1.39.2
     - kind: changed
-      description: Upgrade MinIO dependency chart to 5.1.0
+      description: Upgrade MinIO dependency chart to 5.2.0
+    - kind: fixed
+      description: Mixed-protocol load balancer issue for AWS and GCP
 keywords:
   - API
   - HTTP
@@ -29,11 +39,11 @@ keywords:
 home: https://resurface.io
 dependencies:
   - name: kubernetes-ingress
-    version: "1.39.1"
+    version: "1.39.2"
     repository: https://haproxytech.github.io/helm-charts
     condition: ingress.controller.enabled
   - name: minio
-    version: "5.1.0"
+    version: "5.2.0"
     repository: https://charts.min.io/
     condition: minio.enabled
 maintainers:
@@ -44,4 +54,4 @@ maintainers:
 sources:
   - https://github.com/resurfaceio
 icon: https://raw.githubusercontent.com/resurfaceio/insomnia-plugin/master/assets/plugin/icon-alt.svg
-appVersion: 3.6.86
+appVersion: 3.6.102
