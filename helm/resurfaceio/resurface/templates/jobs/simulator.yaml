@@ -1,12 +1,17 @@
 {{- if and .Values.qa.enabled .Values.qa.simulator.enabled -}}
-{{- $version := default "3.6.1" .Values.qa.simulator.version -}}
+{{- $version := default "3.6.4" .Values.qa.simulator.version -}}
 {{- $initialSleepSeconds := default 180 .Values.qa.simulator.sleep.init | int -}}
 {{- $workload := default "RestSmall2" .Values.qa.simulator.workload -}}
 {{- $host := printf "worker.%s" .Release.Namespace -}}
 {{- $port := "7701" -}}
-{{- if not .Values.ingress.tls.enabled | and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
-  {{- $host = printf "%s.%s" (include "kubernetes-ingress.fullname" (index .Subcharts "kubernetes-ingress")) .Release.Namespace -}}
-  {{- $port = "80" -}}
+{{- if and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
+  {{- if .Values.ingress.tls.enabled -}}
+    {{- $host = .Values.ingress.tls.host -}}
+    {{- $port = "443" -}}
+  {{- else -}}
+    {{- $host = printf "%s.%s" (include "kubernetes-ingress.fullname" (index .Subcharts "kubernetes-ingress")) .Release.Namespace -}}
+    {{- $port = "80" -}}
+  {{- end -}}
 {{- end -}}
 {{- $host = default $host .Values.qa.simulator.host -}}
 {{- $port = default $port .Values.qa.simulator.port -}}

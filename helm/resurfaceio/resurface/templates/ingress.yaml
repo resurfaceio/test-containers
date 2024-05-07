@@ -19,6 +19,7 @@ metadata:
     {{- end }}
     {{- end }}
     {{- if and .Values.ingress.tls.enabled .Values.ingress.tls.autoissue.enabled }}
+    haproxy.org/ssl-redirect-port: "443"
     cert-manager.io/issuer: {{ .Values.ingress.tls.autoissue.staging | ternary "-staging" "" | print (include "resurface.fullname" .) "-letsencrypt" }}
     {{- end }}
 spec:

@@ -1,3 +1,4 @@
+{{- $tls := default "" .Values.provider | eq "ibm-openshift" | or .Values.ingress.tls.enabled | ternary ":ssl" "" -}}
 {{- $iss := lookup "v1" "Secret" .Release.Namespace "trino-iss" -}}
 {{- if empty $iss -}}
 {{- $iss = randAscii 32 | b64enc -}}
@@ -91,6 +92,6 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   {{ .Values.ingress.minio.port | default 9001 | int }}:
-    {{ index .Subcharts "minio" | include "minio.fullname" | printf "%s/%[3]s-console:%[2]s" .Release.Namespace .Values.minio.consoleService.port }}
+    {{ index .Subcharts "minio" | include "minio.fullname" | printf "%s/%[4]s-console:%[2]s%[3]s" .Release.Namespace .Values.minio.consoleService.port $tls }}
 {{- end }}
 {{- end }}

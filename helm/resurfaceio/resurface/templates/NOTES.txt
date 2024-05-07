@@ -44,7 +44,11 @@ echo http://$(kubectl get svc {{ include "resurface.fullname" . }}-kubernetes-in
 {{- end }}
 
 {{- if .Values.integrations.axway.enabled }}
-· Axway integration is enabled.
+· API catalog integration with Axway is enabled.
+{{- end }}
+
+{{- if .Values.integrations.tyk.enabled }}
+· API catalog integration with Tyk Gateway is enabled.
 {{- end }}
 
 · Use the following command to list all the resources deployed with this release:
