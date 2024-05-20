@@ -99,6 +99,8 @@ custom:
     pollingcycle:
     tz:
     version:
+    writerequestbodies:
+    writeresponsebodies:
   storage:
     size:
     classname:
