@@ -108,8 +108,8 @@ Container resources and persistent volumes
 {{- $dbSlabs := .Values.custom.config.dbslabs | default $defaultDBSlabs | int -}}
 {{- $shardSize := .Values.custom.config.shardsize | default $defaultShardSize -}}
 {{- $pollingCycle := .Values.custom.config.pollingcycle | default $defaultPollingCycle -}}
-{{- $writeRequestBodies := .Values.custom.config.writerequestbodies | default $defaultWriteRequestBodies -}}
-{{- $writeResponseBodies := .Values.custom.config.writeresponsebodies | default $defaultWriteResponseBodies -}}
+{{- $writeRequestBodies := .Values.custom.config.writerequestbodies | quote | default $defaultWriteRequestBodies -}}
+{{- $writeResponseBodies := .Values.custom.config.writeresponsebodies | quote | default $defaultWriteResponseBodies -}}
 
 {{/*
   Shard size can be passed with a data unit prefix (k, m, or g)
@@ -236,9 +236,9 @@ Container resources and persistent volumes
             - name: TZ
               value: {{ include "resurface.timezone" . | quote }}
             - name: WRITE_REQUEST_BODIES
-              value: {{ $writeRequestBodies | quote }}
+              value: {{ $writeRequestBodies | trimAll "\"" | quote }}
             - name: WRITE_RESPONSE_BODIES
-              value: {{ $writeResponseBodies | quote }}
+              value: {{ $writeResponseBodies | trimAll "\"" | quote }}
             {{- if $icebergIsEnabled }}
             - name: ICEBERG_SIZE_MAX
               value: {{ mul $unitsCF $icebergMaxSize | printf "%dg" }}
