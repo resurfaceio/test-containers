@@ -100,7 +100,9 @@ custom:
     tz:
     version:
     writerequestbodies:
+    writerequestheaders:
     writeresponsebodies:
+    writeresponseheaders:
   storage:
     size:
     classname:
