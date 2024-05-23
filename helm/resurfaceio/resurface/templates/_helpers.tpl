@@ -74,7 +74,7 @@ Container resources and persistent volumes
 {{- $defaultDBHeap := 12 -}}
 {{- $defaultDBSlabs := 3 -}}
 {{- $defaultShardSize := "1300m" -}}
-{{- $defaultPollingCycle := "default" -}}
+{{- $defaultPollingCycle := $icebergIsEnabled | ternary "default" "fast" -}}
 {{- $minShards := 3 -}}
 
 {{/*
