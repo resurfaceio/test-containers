@@ -75,6 +75,10 @@ Container resources and persistent volumes
 {{- $defaultDBSlabs := 3 -}}
 {{- $defaultShardSize := "1300m" -}}
 {{- $defaultPollingCycle := $icebergIsEnabled | ternary "default" "fast" -}}
+{{- $defaultWriteRequestBodies := "true" -}}
+{{- $defaultWriteRequestHeaders := "true" -}}
+{{- $defaultWriteResponseBodies := "true" -}}
+{{- $defaultWriteResponseHeaders := "true" -}}
 {{- $minShards := 3 -}}
 
 {{/*
@@ -106,6 +110,10 @@ Container resources and persistent volumes
 {{- $dbSlabs := .Values.custom.config.dbslabs | default $defaultDBSlabs | int -}}
 {{- $shardSize := .Values.custom.config.shardsize | default $defaultShardSize -}}
 {{- $pollingCycle := .Values.custom.config.pollingcycle | default $defaultPollingCycle -}}
+{{- $writeRequestBodies := .Values.custom.config.writerequestbodies | quote | default $defaultWriteRequestBodies -}}
+{{- $writeRequestHeaders := .Values.custom.config.writerequestheaders | quote | default $defaultWriteRequestHeaders -}}
+{{- $writeResponseBodies := .Values.custom.config.writeresponsebodies | quote | default $defaultWriteResponseBodies -}}
+{{- $writeResponseHeaders := .Values.custom.config.writeresponseheaders | quote | default $defaultWriteResponseHeaders -}}
 
 {{/*
   Shard size can be passed with a data unit prefix (k, m, or g)
@@ -231,6 +239,14 @@ Container resources and persistent volumes
               value: {{ $pollingCycle | quote }}
             - name: TZ
               value: {{ include "resurface.timezone" . | quote }}
+            - name: WRITE_REQUEST_BODIES
+              value: {{ $writeRequestBodies | trimAll "\"" | quote }}
+            - name: WRITE_REQUEST_HEADERS
+              value: {{ $writeRequestHeaders | trimAll "\"" | quote }}
+            - name: WRITE_RESPONSE_BODIES
+              value: {{ $writeResponseBodies | trimAll "\"" | quote }}
+            - name: WRITE_RESPONSE_HEADERS
+              value: {{ $writeResponseHeaders | trimAll "\"" | quote }}
             {{- if $icebergIsEnabled }}
             - name: ICEBERG_SIZE_MAX
               value: {{ mul $unitsCF $icebergMaxSize | printf "%dg" }}
