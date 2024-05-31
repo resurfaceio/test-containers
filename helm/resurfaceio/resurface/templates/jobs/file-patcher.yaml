@@ -1,0 +1,31 @@
+{{- if default "" .Values.provider | ne "ibm-openshift" | and .Values.ingress.controller.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ index .Subcharts "kubernetes-ingress" | include "kubernetes-ingress.fullname" | printf "%s-file-patcher-job" }}
+  labels:
+    {{- include "resurface.labels" . | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: 10
+  template:
+    metadata:
+      annotations:
+        "helm.sh/hook": post-install,post-upgrade
+    spec:
+      {{- include "jobs.haproxy.errorfilePatcher.spec" . | nindent 6 }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ index .Subcharts "kubernetes-ingress" | include "kubernetes-ingress.fullname" | printf "%s-file-patcher" }}
+  labels:
+    {{- include "resurface.labels" . | nindent 4 }}
+spec:
+  successfulJobsHistoryLimit: 1
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- include "jobs.haproxy.errorfilePatcher.spec" . | nindent 10 }}
+{{- end -}}

@@ -345,6 +345,34 @@ TLS helper
 {{- end -}}
 
 {{/*
+HAProxy errorfiles patcher job template
+*/}}
+{{- define "jobs.haproxy.errorfilePatcher.spec" -}}
+restartPolicy: Never
+serviceAccountName: {{ include "resurface.fullname" . | printf "%s-patcher-sa" }}
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+tolerations:
+  {{- toYaml .Values.tolerations | nindent 2 }}
+containers:
+  - name: updater
+    image: jitesoft/kubectl
+    command:
+      - "/home/kube/scripts/patch.sh"
+    volumeMounts:
+      - name: script
+        mountPath: "/home/kube/scripts"
+        readOnly: true
+volumes:
+  - name: script
+    configMap:
+      name: haproxy-errorfiles-script
+      defaultMode: 0550
+{{- end -}}
+
+{{/*
 Coordinator config.properties
 */}}
 {{- define "resurface.config.coordinator" -}}
