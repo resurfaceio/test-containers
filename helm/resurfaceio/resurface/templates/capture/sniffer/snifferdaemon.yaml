@@ -1,7 +1,12 @@
 {{- if .Values.sniffer.enabled -}}
 {{- $url := .Values.custom.service.flukeserver.port | default 7701 | printf "http://worker.%s:%v/message" .Release.Namespace -}}
 {{- if and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
-  {{- $url = printf "http://%s.%s/fluke/message" (include "kubernetes-ingress.fullname" (index .Subcharts "kubernetes-ingress")) .Release.Namespace -}}
+  {{- $path :=  .Values.ingress.importer.path | default "/fluke" | printf "%s/message" -}}
+  {{- if .Values.ingress.tls.enabled -}}
+    {{- $url = printf "https://%s%s/message" .Values.ingress.tls.host $path -}}
+  {{- else -}}
+    {{- $url = index .Subcharts "kubernetes-ingress" | include "kubernetes-ingress.fullname" | printf "http://%[2]s%[1]s" $path -}}
+  {{- end -}}
 {{- end -}}
 apiVersion: apps/v1
 kind: DaemonSet
