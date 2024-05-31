@@ -1,0 +1,78 @@
+{{- $tls := default "" .Values.provider | eq "ibm-openshift" | or .Values.ingress.tls.enabled | ternary ":ssl" "" -}}
+{{- if default "" .Values.provider | ne "ibm-openshift" | and .Values.ingress.controller.enabled -}}
+{{- if and .Values.iceberg.enabled .Values.minio.enabled .Values.ingress.minio.expose }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-extra-ports
+  namespace: {{ .Release.Namespace }}
+data:
+  {{ .Values.ingress.minio.port | default 9001 | int }}:
+    {{ index .Subcharts "minio" | include "minio.fullname" | printf "%s/%[4]s-console:%[2]s%[3]s" .Release.Namespace .Values.minio.consoleService.port $tls }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-errorfiles
+data:
+  503: |-
+    HTTP/1.0 503 Service Unavailable
+    Cache-Control: must-revalidate,no-cache,no-store
+    Connection: close
+    Content-Type: text/html;charset=utf-8
+
+    <html>
+      <title>503 Service Unavailable</title>
+      <style>
+        body { background-color: rgba(48,48,48); font-family: Arial, sans-serif; text-align: center; }
+        div { color: white; margin-top:100px; font-size: 120%; }
+        h1 { font-weight: 500; }
+        p { color: rgba(230,230,230); }
+        a { color: inherit; }
+        #contact { margin-top: 25px; }
+      </style>
+      <body>
+        <div>
+          <h1>No available nodes 😮‍💨</h1>
+          <p>
+            Sorry, there are no Graylog API Security nodes available to handle your request just yet.
+            Please, try again in a few minutes.
+          </p>
+          <p id="contact">
+            If this issue persists, please contact support at <a href="mailto:api-support@graylog.com?subject=Kubernetes%20error&body=My%20cluster%20won%27t%20start.%20Please%20help!%0A%0AMy%20license%3A%20%3CPaste%20your%20license%20here%3E%0A%0A---%20BEGIN%20CLUSTER%20INFO%20---%0A%0A!EMPTY!%0A%0A---%20END%20CLUSTER%20INFO%20---">api-support@graylog.com</a>.
+          </p>
+        <div>
+      </body>
+    </html>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-errorfiles-script
+  namespace: {{ .Release.Namespace }}
+data:
+  patch.sh: |-
+    #!/bin/ash
+    print_separator() {
+    N=30; SYM='='
+    SEP=$(printf '%0.s'$SYM $(seq 1 $N))
+    echo -e "${SEP}\n${SEP}\n $1 \n${SEP}\n${SEP}"
+    }
+    cd /home/kube
+    timeout 2m ash -c 'until kubectl get svc {{ index .Subcharts "kubernetes-ingress" | include "kubernetes-ingress.fullname" }} -n resurface --template "{{ "{{" }} range (index .status.loadBalancer.ingress 0) {{ "}}" }}{{ "{{" }} . {{ "}}" }}{{ "{{" }} end {{ "}}" }}" &> /dev/null; do sleep 10; done'
+    touch state
+    print_separator "nodes" >> state
+    kubectl describe nodes >> state
+    for i in pods sts pvc svc; do
+    print_separator "${i}" >> state
+    kubectl describe $i -n {{ .Release.Namespace }} >> state
+    done
+    print_separator "pv" >> state
+    kubectl describe pv >> state
+    ENCODED=$(tar c -z state | base64 -w 0)
+    echo -e "data:\n  \"503\": |-" > patch.yml
+    kubectl get cm haproxy-errorfiles --template '{{ "{{" }} index .data "503" {{ "}}" }}' | sed -e 's/^/    /g' >> patch.yml
+    sed -i -e "s|!EMPTY!|$ENCODED|g" patch.yml
+    kubectl patch configmap haproxy-errorfiles --patch-file patch.yml
+{{- end -}}

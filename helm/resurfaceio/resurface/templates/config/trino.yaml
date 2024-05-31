@@ -1,0 +1,48 @@
+{{- $iss := lookup "v1" "Secret" .Release.Namespace "trino-iss" -}}
+{{- if empty $iss -}}
+  {{- $iss = randAscii 32 | b64enc -}}
+{{- else -}}
+  {{ $iss = $iss.data.iss }}
+{{- end }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trino-iss
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  iss: {{ $iss }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trino-coordinator-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.properties: |
+    {{- include "resurface.config.coordinator" . | nindent 4 }}
+    internal-communication.shared-secret={{ $iss }}
+{{- if and .Values.auth.enabled .Values.auth.basic.enabled }}
+  password-authenticator.properties: |
+    password-authenticator.name=file
+    file.password-file=etc/creds/password.db
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trino-creds
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  password.db: {{ include "resurface.auth.creds" . }}
+{{ end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trino-worker-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.properties: |
+    {{- include "resurface.config.worker" . | nindent 4 }}
+    internal-communication.shared-secret={{ $iss }}
