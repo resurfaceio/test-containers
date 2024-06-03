@@ -1,0 +1,60 @@
+apiVersion: v1
+entries:
+  resurface:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: Option to skip writing headers and bodies
+        - kind: added
+          description: Job and role to check on cluster status, and update ConfigMap accordingly
+        - kind: changed
+          description: Upgrade Resurface image to 3.6.114
+        - kind: changed
+          description: Upgrade HAProxy dependency chart to 1.39.3
+        - kind: fixed
+          description: Capture URL for Sniffer DaemonSet when TLS is enabled
+      artifacthub.io/containsSecurityUpdates: "false"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 3.6.114
+    created: "2024-06-03T19:49:46.943408619Z"
+    dependencies:
+    - condition: ingress.controller.enabled
+      name: kubernetes-ingress
+      repository: https://haproxytech.github.io/helm-charts
+      version: 1.39.3
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.2.0
+    description: Resurface discovers and alerts on quality and security signatures
+      in your API traffic.
+    digest: 9130cf178e3e9881c8cfc3939d231609576fa28d4e0d2062eddad412aae1843b
+    home: https://resurface.io
+    icon: https://raw.githubusercontent.com/resurfaceio/insomnia-plugin/master/assets/plugin/icon-alt.svg
+    keywords:
+    - API
+    - HTTP
+    - SOAP
+    - REST
+    - GraphQL
+    - Triage
+    - Security
+    - Observability
+    - Logs
+    - Monitoring
+    - Troubleshooting
+    - Alerts
+    maintainers:
+    - email: ramon@resurface.io
+      name: Ramón Márquez
+    - email: rob@resurface.io
+      name: Rob Dickinson
+    name: resurface
+    sources:
+    - https://github.com/resurfaceio
+    type: application
+    urls:
+    - https://github.com/resurfaceio/containers/releases/download/resurface-3.8.0/resurface-3.8.0.tgz
+    version: 3.8.0
+generated: "2024-06-03T19:49:46.943418798Z"
