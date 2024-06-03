@@ -1,28 +1,22 @@
 apiVersion: v2
 name: resurface
-version: 3.7.0
+version: 3.8.0
 type: application
 description: Resurface discovers and alerts on quality and security signatures in your API traffic.
 annotations:
-  artifacthub.io/containsSecurityUpdates: "true"
+  artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/prerelease: "false"
   artifacthub.io/changes: |
     - kind: added
-      description: Support for API catalog integration with Axway
+      description: Option to skip writing headers and bodies
     - kind: added
-      description: Support for API catalog integration with Tyk
-    - kind: added
-      description: TLS support for MinIO web console
-    - kind: added
-      description: Custom 503 error page
+      description: Job and role to check on cluster status, and update ConfigMap accordingly
     - kind: changed
-      description: Upgrade Resurface image to 3.6.102
+      description: Upgrade Resurface image to 3.6.114
     - kind: changed
-      description: Upgrade HAProxy dependency chart to 1.39.2
-    - kind: changed
-      description: Upgrade MinIO dependency chart to 5.2.0
+      description: Upgrade HAProxy dependency chart to 1.39.3
     - kind: fixed
-      description: Mixed-protocol load balancer issue for AWS and GCP
+      description: Capture URL for Sniffer DaemonSet when TLS is enabled
 keywords:
   - API
   - HTTP
