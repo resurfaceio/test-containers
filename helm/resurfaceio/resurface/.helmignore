@@ -25,16 +25,9 @@
 *.tmproj
 .vscode/
 
-# In development
-ns.yaml
+# Specific Files
 scc.yaml
 tls-secret.yaml
-importer.yaml
-collector.yaml
-dev/
-minio/
-# jobs/
 
-# Deprecated
-deployment.yaml
-entitlement.yaml
+# Directories
+/dev
