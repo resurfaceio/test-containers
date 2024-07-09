@@ -1,6 +1,6 @@
 apiVersion: v2
 name: resurface
-version: 3.8.0
+version: 3.8.1
 type: application
 description: Resurface discovers and alerts on quality and security signatures in your API traffic.
 annotations:
