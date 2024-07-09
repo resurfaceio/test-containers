@@ -18,9 +18,11 @@ metadata:
     haproxy.org/path-rewrite: {{ .Values.ingress.importer.path | default "/fluke" }}/(.*) /\1
     {{- end }}
     {{- end }}
-    {{- if and .Values.ingress.tls.enabled .Values.ingress.tls.autoissue.enabled }}
+    {{- if .Values.ingress.tls.enabled }}
     haproxy.org/ssl-redirect-port: "443"
+    {{- if .Values.ingress.tls.autoissue.enabled }}
     cert-manager.io/issuer: {{ .Values.ingress.tls.autoissue.staging | ternary "-staging" "" | print (include "resurface.fullname" .) "-letsencrypt" }}
+    {{- end }}
     {{- end }}
 spec:
   {{- if ne $provider "ibm-openshift" }}

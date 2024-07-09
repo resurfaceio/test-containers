@@ -87,11 +87,15 @@ kubectl get configmap/vnis-config -n resurface -o yaml
 {{ end }}
 {{ if and (empty (include "resurface.sniffer.mirror.options" .)) (empty (include "resurface.sniffer.options" .)) }}
   NOTE: NO services, pods, or labels were specified and discovery is DISABLED.
+{{ if .Values.sniffer.promisc.enabled }}
+  Promiscuous mode is ENABLED.
+{{ else }}
   This might result in unexpected behavior. Please, specify at least one service, pod or label, or enable service discovery.
   For more information use the following command:
 
 helm show readme resurfaceio/resurface
 {{ end }}
+{{- end }}
 {{- end }}
 
 {{ if .Values.consumer.azure.enabled -}}

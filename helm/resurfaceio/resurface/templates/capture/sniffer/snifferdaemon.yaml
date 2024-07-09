@@ -1,9 +1,10 @@
+{{- $selfsigned := not .Values.ingress.tls.autoissue.enabled | or .Values.ingress.tls.autoissue.staging | and .Values.ingress.tls.enabled -}}
 {{- if .Values.sniffer.enabled -}}
 {{- $url := .Values.custom.service.flukeserver.port | default 7701 | printf "http://worker.%s:%v/message" .Release.Namespace -}}
 {{- if and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
   {{- $path :=  .Values.ingress.importer.path | default "/fluke" | printf "%s/message" -}}
   {{- if .Values.ingress.tls.enabled -}}
-    {{- $url = printf "https://%s%s/message" .Values.ingress.tls.host $path -}}
+    {{- $url = printf "https://%s%s" .Values.ingress.tls.host $path -}}
   {{- else -}}
     {{- $url = index .Subcharts "kubernetes-ingress" | include "kubernetes-ingress.fullname" | printf "http://%[2]s%[1]s" $path -}}
   {{- end -}}
@@ -26,16 +27,36 @@ spec:
       serviceAccountName: {{ include "resurface.fullname" . }}-sniffer-sa
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
+      {{ if $selfsigned -}}
+      volumes:
+        - name: crt-volume
+          secret:
+            secretName: resurface-tls
+            items:
+              - key: tls.crt
+                path: tls.crt
+      {{ end -}}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
       containers:
       - name: resurface-logger
-        image: resurfaceio/network-sniffer:1.4.0
+        image: resurfaceio/network-sniffer:1.5.1
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 0
           runAsGroup: 0
           capabilities:
             add: [ "NET_ADMIN", "NET_RAW" ]
+        {{ if $selfsigned -}}
+        volumeMounts:
+          - name: crt-volume
+            mountPath: /etc/ssl/selfsigned
+        {{- end }}
         env:
+        {{ if $selfsigned -}}
+        - name: USAGE_LOGGERS_TLS_CUSTOM_CERT
+          value: "/etc/ssl/selfsigned/tls.crt"
+        {{- end }}
         - name: USAGE_LOGGERS_URL
           value: {{ $url }}
         - name: USAGE_LOGGERS_RULES
@@ -49,7 +70,13 @@ spec:
         - name: APP_PORT
           value: {{ .Values.sniffer.port | default 80 | quote }}
         - name: VPC_MIRROR_DEVICE
-          value: {{ .Values.sniffer.device | default "cbr0" }}
+          value: {{ .Values.sniffer.device | default "eth0" }}
+        {{ if .Values.sniffer.promisc.enabled -}}
+        - name: SNIFFER_PROMISC_ENABLED
+          value: "true"
+        - name: SNIFFER_NOFILTER
+          value: "true"
+        {{- end }}
         {{ else -}}
         - name: K8S_INPUT
           {{ if empty $snifferops -}}
@@ -75,7 +102,7 @@ spec:
           value: "k8s"
       {{ if not (empty $sniffermirrorops) -}}
       - name: resurface-logger-2
-        image: resurfaceio/network-sniffer:1.4.0
+        image: resurfaceio/network-sniffer:1.5.1
         imagePullPolicy: IfNotPresent
         securityContext:
           runAsUser: 0

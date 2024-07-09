@@ -117,6 +117,8 @@ sniffer:
   services:
   pods:
   labels:
+  promisc:
+    enabled: false
   vpcmirror:
     enabled: false
     ports:

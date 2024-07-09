@@ -308,6 +308,8 @@ Container resources and persistent volumes
       spec:
         {{- if not (empty .Values.custom.storage.classname) }}
         storageClassName: {{ .Values.custom.storage.classname }}
+        {{- else if semverCompare ">=1.30.0-0" .Capabilities.KubeVersion.Version | and (eq .Values.provider "aws") }}
+        storageClassName: gp2
         {{- end }}
         accessModes: [ "ReadWriteOnce" ]
         resources:

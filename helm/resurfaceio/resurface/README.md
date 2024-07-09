@@ -266,12 +266,6 @@ The **sniffer** section is where the configuration values for the optional netwo
 
 <!--      - **sniffer.vpcmirror.autosetup.source.ecs.tasks**: []string. Comma-separated sequence of IDs of ECS tasks to capture traffic from. Filters out all other ECS tasks not intended for traffic mirroring. Optional.-->
 
-
-- **sniffer.port**: (deprecated) integer. Container port exposed by the application to capture packets from. Defaults to `80`. Required only if **sniffer.enabled** is `true` and no other option is enabled.
-- **sniffer.device**: (deprecated) string. Name of the network interface to attach the sniffer to. Defaults to the Kubernetes custom bridge interface `cbr0`.
-
-NOTE: When no services, pods, or labels are specified and discovery is disabled, the sniffer behavior falls back to logging from a specific network device on a specific port. This is not compatible with all Kubernetes environments and should be avoided by specifiying at least one service, pod or label, or enabling service discovery.
-
 ```yaml
 sniffer:
   enabled: true
@@ -303,6 +297,28 @@ sniffer:
       include debug
       skip_compression
 ```
+
+- **sniffer.port**: integer. Container port exposed by the application to capture packets from. Defaults to `80`. Required only if **sniffer.enabled** is `true` and no other option is enabled.
+- **sniffer.device**: string. Name of the network interface to attach the sniffer to. Defaults to `eth0`.
+
+NOTE: When no services, pods, or labels are specified and discovery is disabled, the sniffer behavior falls back to logging from a specific network device on a specific port. This is useful when promiscuous mode is enabled. Otherwise, this is not compatible with all Kubernetes environments and should be avoided by specifying at least one service, pod or label, or enabling service discovery.
+
+- **sniffer.promisc.enabled**: boolean. When set to true, promiscuous mode is enabled explicitly. Kubernetes discovery mode should be disabled when this is enabled. Defaults to `false`.
+
+```yaml
+sniffer:
+  enabled: true
+  discovery:
+    enabled: false
+  promisc:
+    enabled: true
+  device: eth0
+  port: 8080
+  logger:
+    enabled: true
+    rules: include debug
+```
+
 
 The **consumer** section contains the configuration for data stream consumer applications that capture API calls from currently supported API Gateways: Azure API Management, and AWS API Gateway. The containerized applications act as subscribers to platform-specific message bus services (Azure Event Hubs and AWS Kinesis Data Streams, respectively) that must be configured beforehand. More info on how to configure each application: [azure-eh](https://github.com/resurfaceio/azure-eh) and [aws-kds](https://github.com/resurfaceio/aws-kds).
 
