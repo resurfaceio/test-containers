@@ -1,0 +1,66 @@
+apiVersion: v1
+entries:
+  resurface:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: Default StorageClass (gp2) for EKS >1.30
+        - kind: added
+          description: Self-signed certificate support for network sniffer
+        - kind: added
+          description: Promiscuous mode option for network sniffer
+        - kind: changed
+          description: Upgrade Resurface image to 3.6.116
+        - kind: changed
+          description: Upgrade Network Sniffer image to 1.5.1
+        - kind: changed
+          description: Upgrade HAProxy dependency chart to 1.39.4
+        - kind: fixed
+          description: Secure capture URL for network sniffer
+        - kind: fixed
+          description: SSL/TLS redirect port for HAProxy ingress
+      artifacthub.io/containsSecurityUpdates: "true"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 3.6.116
+    created: "2024-07-09T03:07:25.15573797Z"
+    dependencies:
+    - condition: ingress.controller.enabled
+      name: kubernetes-ingress
+      repository: https://haproxytech.github.io/helm-charts
+      version: 1.39.4
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.2.0
+    description: Resurface discovers and alerts on quality and security signatures
+      in your API traffic.
+    digest: 84f81cac9df26221bce8a28c1ea865a1dc780d52e6bcfe94b408539122cc36f6
+    home: https://resurface.io
+    icon: https://raw.githubusercontent.com/resurfaceio/insomnia-plugin/master/assets/plugin/icon-alt.svg
+    keywords:
+    - API
+    - HTTP
+    - SOAP
+    - REST
+    - GraphQL
+    - Triage
+    - Security
+    - Observability
+    - Logs
+    - Monitoring
+    - Troubleshooting
+    - Alerts
+    maintainers:
+    - email: ramon@resurface.io
+      name: Ramón Márquez
+    - email: rob@resurface.io
+      name: Rob Dickinson
+    name: resurface
+    sources:
+    - https://github.com/resurfaceio
+    type: application
+    urls:
+    - https://github.com/resurfaceio/containers/releases/download/resurface-3.8.1/resurface-3.8.1.tgz
+    version: 3.8.1
+generated: "2024-07-09T03:07:25.155746867Z"
