@@ -143,12 +143,13 @@ sniffer:
   logger:
     enabled: true
     rules: |
-      include default
+      include debug
       skip_compression
 
 consumer:
   azure:
     enabled: false
+    verbose: false
     ehname: apimlogs
     storagecontainername: 
     ehconnstring: 
@@ -163,9 +164,9 @@ consumer:
       enabled:
   logger:
     enabled: true
+    bypass: false
     rules: |
-      include default
-      skip_compression
+      include debug
 
 # Base tolerations
 tolerations: &base_tolerations

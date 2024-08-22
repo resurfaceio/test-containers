@@ -461,6 +461,39 @@ Auth file
 {{- end }}
 
 {{/*
+Capture URL
+*/}}
+{{- define "resurface.capture.workerurl" }}
+{{- .Values.custom.service.flukeserver.port | default 7701 | printf "http://worker.%s:%v/message" .Release.Namespace -}}
+{{- end -}}
+{{- define "resurface.capture.url" -}}
+{{- $url := include "resurface.capture.workerurl" . -}}
+{{- if and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
+  {{- $path :=  .Values.ingress.importer.path | default "/fluke" | printf "%s/message" -}}
+  {{- if .Values.ingress.tls.enabled -}}
+    {{- $url = printf "https://%s%s" .Values.ingress.tls.host $path -}}
+  {{- else -}}
+    {{- $url = index .Subcharts "kubernetes-ingress" | include "kubernetes-ingress.fullname" | printf "http://%[2]s%[1]s" $path -}}
+  {{- end -}}
+{{- end -}}
+{{ print $url }}
+{{- end -}}
+
+{{/*
+Default logging rules
+// See next line for usage
+rules: |
+  {{- include "resurface.capture.default.rules" . | nindent 2 }}
+*/}}
+{{- define "resurface.capture.default.rules" -}}
+{{- $rules := list "include default" -}}
+{{- if not .Values.ingress.tls.enabled -}}
+  {{- $rules = append $rules "allow_http_url" -}}
+{{- end -}}
+{{- join "\n" $rules | print -}}
+{{- end -}}
+
+{{/*
 Sniffer options
 */}}
 {{- define "resurface.sniffer.options" -}}

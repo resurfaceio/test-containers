@@ -25,9 +25,11 @@ spec:
       labels:
         {{- include "resurface.selectorLabels" . | nindent 8 }}
     spec:
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}-azure-eh-consumer
-          image: resurfaceio/azure-eh-consumer:1.0.1
+          image: resurfaceio/azure-eh-consumer:1.1.1
           imagePullPolicy: IfNotPresent
           envFrom:
           - secretRef:
@@ -40,10 +42,12 @@ spec:
             - name: PARTITION_NUMBER
               value: {{ .Values.consumer.azure.partition | default 0 | quote }}
             - name: USAGE_LOGGERS_URL
-              value: {{ .Values.custom.service.flukeserver.port | default 7701 | printf "http://worker:%v/message" }}
+              value: {{ .Values.consumer.logger.bypass | ternary (include "resurface.capture.workerurl" .) (include "resurface.capture.url" .) }}
             - name: USAGE_LOGGERS_RULES
               value: |
-                {{- .Values.consumer.logger.rules | default "include default" | nindent 16 }}
+                {{- .Values.consumer.logger.rules | default (include "resurface.capture.default.rules" .) | nindent 16 }}
             - name: USAGE_LOGGERS_DISABLE
               value: {{ not .Values.consumer.logger.enabled | default nil }}
+            - name: DEFAULT_LOG_LEVEL
+              value: {{ .Values.consumer.azure.verbose | ternary "debug" "info" }}
 {{- end -}}

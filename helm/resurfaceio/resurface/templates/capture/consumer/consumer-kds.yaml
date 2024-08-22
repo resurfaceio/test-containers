@@ -2,10 +2,6 @@
 {{- $akisenabled := .Values.consumer.aws.accesskey.enabled | default (ne "aws" (default "" .Values.provider)) -}}
 {{- $akid := coalesce .Values.consumer.aws.accesskeyid .Values.consumer.aws.accesskey.id -}}
 {{- $aksecret := coalesce .Values.consumer.aws.accesskeysecret .Values.consumer.aws.accesskey.secret -}}
-{{- $url := .Values.custom.service.flukeserver.port | default 7701 | printf "http://worker.%s:%v/message" .Release.Namespace -}}
-{{- if and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
-  {{- $url = printf "http://%s.%s/fluke/message" (include "kubernetes-ingress.fullname" (index .Subcharts "kubernetes-ingress")) .Release.Namespace -}}
-{{- end -}}
 {{- if and $akisenabled $akid $aksecret -}}
 apiVersion: v1
 kind: Secret
@@ -32,6 +28,8 @@ spec:
       labels:
         {{- include "resurface.selectorLabels" . | nindent 8 }}
     spec:
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}-aws-kds-consumer
           image: resurfaceio/aws-kds-consumer:1.1.0
@@ -47,10 +45,10 @@ spec:
             - name: AWS_REGION
               value: {{ .Values.consumer.aws.region | required "AWS region where Kinesis stream is deployed must be provided." | quote }}
             - name: USAGE_LOGGERS_URL
-              value: {{ $url }}
+              value: {{ .Values.consumer.logger.bypass | ternary (include "resurface.capture.workerurl" .) (include "resurface.capture.url" .) }}
             - name: USAGE_LOGGERS_RULES
               value: |
-              {{- .Values.consumer.logger.rules | default "include default" | nindent 16 }}
+              {{- .Values.consumer.logger.rules | default (include "resurface.capture.default.rules" .) | nindent 16 }}
             - name: USAGE_LOGGERS_DISABLE
               value: {{ not .Values.consumer.logger.enabled | default nil }}
 {{- end -}}

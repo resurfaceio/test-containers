@@ -1,14 +1,5 @@
 {{- $selfsigned := not .Values.ingress.tls.autoissue.enabled | or .Values.ingress.tls.autoissue.staging | and .Values.ingress.tls.enabled -}}
 {{- if .Values.sniffer.enabled -}}
-{{- $url := .Values.custom.service.flukeserver.port | default 7701 | printf "http://worker.%s:%v/message" .Release.Namespace -}}
-{{- if and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
-  {{- $path :=  .Values.ingress.importer.path | default "/fluke" | printf "%s/message" -}}
-  {{- if .Values.ingress.tls.enabled -}}
-    {{- $url = printf "https://%s%s" .Values.ingress.tls.host $path -}}
-  {{- else -}}
-    {{- $url = index .Subcharts "kubernetes-ingress" | include "kubernetes-ingress.fullname" | printf "http://%[2]s%[1]s" $path -}}
-  {{- end -}}
-{{- end -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -58,10 +49,10 @@ spec:
           value: "/etc/ssl/selfsigned/tls.crt"
         {{- end }}
         - name: USAGE_LOGGERS_URL
-          value: {{ $url }}
+          value: {{ include "resurface.capture.url" . }}
         - name: USAGE_LOGGERS_RULES
           value: |
-          {{- .Values.sniffer.logger.rules | default "include default" | nindent 12 }}
+          {{- .Values.sniffer.logger.rules | default (include "resurface.capture.default.rules" .) | nindent 12 }}
         - name: USAGE_LOGGERS_DISABLE
           value: {{ not .Values.sniffer.logger.enabled | default nil }}
         {{ $snifferops := include "resurface.sniffer.options" . -}}
@@ -111,10 +102,10 @@ spec:
             add: [ "NET_ADMIN", "NET_RAW" ]
         env:
         - name: USAGE_LOGGERS_URL
-          value: {{ $url }}
+          value: {{ include "resurface.capture.url" . }}
         - name: USAGE_LOGGERS_RULES
           value: |
-          {{- .Values.sniffer.logger.rules | default "include default" | nindent 12 }}
+          {{- .Values.sniffer.logger.rules | default (include "resurface.capture.default.rules" .) | nindent 12 }}
         - name: USAGE_LOGGERS_DISABLE
           value: {{ not .Values.sniffer.logger.enabled | default nil }}
         - name: K8S_INPUT

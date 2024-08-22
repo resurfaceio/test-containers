@@ -100,8 +100,14 @@ helm show readme resurfaceio/resurface
 
 {{ if .Values.consumer.azure.enabled -}}
 · Azure API Management logger is ENABLED.
+{{ if .Values.consumer.logger.bypass }}
+  NOTE: Ingress Controller BYPASS mode is ENABLED. This mode should only active when using self-signed certificates.
+{{- end }}
 {{- end }}
 
 {{ if .Values.consumer.aws.enabled -}}
 · AWS API Gateway logger is ENABLED.
+{{ if .Values.consumer.logger.bypass -}}
+  NOTE: Ingress Controller BYPASS mode is ENABLED. This mode should only active when using self-signed certificates.
+{{- end }}
 {{- end }}
