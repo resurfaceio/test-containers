@@ -112,6 +112,60 @@ entries:
   resurface:
   - annotations:
       artifacthub.io/changes: |
+        - kind: changed
+          description: Upgrade azure-eh image to 1.1.1
+        - kind: changed
+          description: Logging rules now support HTTP traffic by default
+        - kind: fixed
+          description: Secure capture URL for event consumer apps
+        - kind: fixed
+          description: Tolerations required by GKE on ARM for event consumer apps
+      artifacthub.io/containsSecurityUpdates: "true"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 3.6.116
+    created: "2024-08-22T15:33:12.660343919Z"
+    dependencies:
+      - condition: ingress.controller.enabled
+        name: kubernetes-ingress
+        repository: https://haproxytech.github.io/helm-charts
+        version: 1.39.4
+      - condition: minio.enabled
+        name: minio
+        repository: https://charts.min.io/
+        version: 5.2.0
+    description: Resurface discovers and alerts on quality and security signatures
+      in your API traffic.
+    digest: 2b6cd1f996a26ef47de86b37f9980c960e71e3ad872bc8e6c465bc2098751db1
+    home: https://resurface.io
+    icon: https://raw.githubusercontent.com/resurfaceio/insomnia-plugin/master/assets/plugin/icon-alt.svg
+    keywords:
+      - API
+      - HTTP
+      - SOAP
+      - REST
+      - GraphQL
+      - Triage
+      - Security
+      - Observability
+      - Logs
+      - Monitoring
+      - Troubleshooting
+      - Alerts
+    maintainers:
+      - email: ramon@resurface.io
+        name: Ramón Márquez
+      - email: rob@resurface.io
+        name: Rob Dickinson
+    name: resurface
+    sources:
+      - https://github.com/resurfaceio
+    type: application
+    urls:
+      - https://github.com/resurfaceio/containers/releases/download/resurface-3.8.2/resurface-3.8.2.tgz
+    version: 3.8.2
+  - annotations:
+      artifacthub.io/changes: |
         - kind: added
           description: Default StorageClass (gp2) for EKS >1.30
         - kind: added
@@ -1940,4 +1994,4 @@ entries:
     urls:
     - https://github.com/resurfaceio/containers/releases/download/resurface-3.0.0/resurface-3.0.0.tgz
     version: 3.0.0
-generated: "2024-07-09T03:07:25.155746867Z"
+generated: "2024-08-22T15:33:12.660353617Z"
