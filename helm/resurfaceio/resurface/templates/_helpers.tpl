@@ -381,7 +381,8 @@ Coordinator config.properties
 coordinator=true
 discovery.uri=http://localhost:7700
 node-scheduler.include-coordinator=true
-{{ if default "" .Values.provider | eq "ibm-openshift" | or .Values.ingress.tls.enabled -}}
+{{ $provider := default "" .Values.provider -}}
+{{ if or .Values.ingress.tls.enabled (eq $provider "ibm-openshift") (include "resurface.condition.insecure" .) -}}
 http-server.process-forwarded=true
 http-server.authentication.allow-insecure-over-http=true
 {{ include "resurface.config.auth" . -}}
@@ -415,6 +416,10 @@ query.min-expire-age={{ $trinoMinExpireTime }}
 sql.forced-session-time-zone={{ include "resurface.timezone" . }}
 {{- end -}}
 
+{{- define "resurface.condition.insecure"  -}}
+{{ and (eq .Values.provider "aws-marketplace") (not .Values.ingress.tls.enabled) | ternary "true" "" }}
+{{- end -}}
+
 {{/*
 Auth-related config.properties for the coordinator
 */}}
@@ -444,6 +449,8 @@ http-server.authentication.oauth2.client-secret={{ required "The client secret i
 {{- if .Values.auth.jwt.enabled }}
 http-server.authentication.jwt.key-file={{ required "URL to a JWKS service or the path to a PEM or HMAC file is required for JWT configuration" .Values.auth.jwt.jwksurl }}
 {{- end -}}
+{{- else if (include "resurface.condition.insecure" .) }}
+http-server.authentication.type=PASSWORD
 {{- end -}}
 {{- end -}}
 

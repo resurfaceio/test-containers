@@ -32,7 +32,7 @@ spec:
             items:
               - key: config.properties
                 path: config.properties
-        {{ if and .Values.auth.enabled .Values.auth.basic.enabled -}}
+        {{ if and .Values.auth.enabled .Values.auth.basic.enabled | or (include "resurface.condition.insecure" .) -}}
         - name: auth-volume
           configMap:
             name: trino-coordinator-config
@@ -60,7 +60,7 @@ spec:
             - name: config-volume
               mountPath: /opt/trino/etc/config.properties
               subPath: config.properties
-            {{ if and .Values.auth.enabled .Values.auth.basic.enabled -}}
+            {{ if and .Values.auth.enabled .Values.auth.basic.enabled | or (include "resurface.condition.insecure" .) -}}
             - name: auth-volume
               mountPath: /opt/trino/etc/password-authenticator.properties
               subPath: password-authenticator.properties

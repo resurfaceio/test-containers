@@ -22,7 +22,7 @@ data:
   config.properties: |
     {{- include "resurface.config.coordinator" . | nindent 4 }}
     internal-communication.shared-secret={{ $iss }}
-{{- if and .Values.auth.enabled .Values.auth.basic.enabled }}
+{{- if and .Values.auth.enabled .Values.auth.basic.enabled | or (include "resurface.condition.insecure" .) }}
   password-authenticator.properties: |
     password-authenticator.name=file
     file.password-file=etc/creds/password.db
@@ -34,7 +34,22 @@ metadata:
   namespace: {{ .Release.Namespace }}
 type: Opaque
 data:
+  {{ if ne .Values.provider "aws-marketplace" -}}
   password.db: {{ include "resurface.auth.creds" . }}
+  {{- else -}}
+  {{- $irp := randAlphaNum 16 -}}
+  password.db: {{ htpasswd "admin" $irp | replace "$2a$" "$2y$" | print | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trino-irp
+  namespace: {{ .Release.Namespace }}
+type: kubernetes.io/basic-auth
+stringData:
+  username: "admin"
+  password: {{ $irp | quote }}
+  {{- end -}}
 {{ end }}
 ---
 apiVersion: v1

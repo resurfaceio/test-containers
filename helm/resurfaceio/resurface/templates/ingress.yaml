@@ -15,6 +15,21 @@ metadata:
     haproxy.org/backend-config-snippet: |
       {{ print "acl no_trailing_slash path -m str " $importerPath }}
       {{ printf "http-request redirect code 301 location %s/ if no_trailing_slash" $importerPath }}
+      {{- if (include "resurface.condition.insecure" .) }}
+      {{ print "acl h_loc_exists res.hdr(location) -m found" }}
+      {{ print "acl h_loc_valid res.hdr(location) -m dir /ui/insecure.html" }}
+      {{ print "acl is_logout path -m str /ui/logout" }}
+      {{ print "acl is_valid_path path -m str /ui/insecure.html /ui/login.html /ui/logout" }}
+      {{ print "acl is_valid_path path -m beg /ui/vendor /ui/assets" }}
+      {{ print "acl has_set_cookie req.hdr(cookie) -m beg Trino-UI-Token=" }}
+      {{ print "http-request set-header X-Forwarded-Proto https" }}
+      {{ print "http-response replace-header location ^https://(.*) http://\\1 if h_loc_exists" }}
+      {{ print "http-response replace-header location ^([^?\\s]*)(\\?.*)?$ \\1?/ui/insecure if h_loc_exists !h_loc_valid" }}
+      {{ print "http-request set-header X-Internal-Insecure true if is_logout" }}
+      {{ print "http-request redirect code 301 location /ui/insecure.html if !is_valid_path has_set_cookie"}}
+      {{- else -}}
+      {{ print "http-request deny deny_status 404 if { path -m beg /ui/insecure }" }}
+      {{- end }}
     haproxy.org/path-rewrite: {{ .Values.ingress.importer.path | default "/fluke" }}/(.*) /\1
     {{- end }}
     {{- end }}

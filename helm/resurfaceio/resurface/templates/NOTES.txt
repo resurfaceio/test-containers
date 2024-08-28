@@ -40,6 +40,12 @@ echo http://$(kubectl get svc {{ include "resurface.fullname" . }}-kubernetes-in
   · Basic auth is{{ if not .Values.auth.basic.enabled }} not{{end}} enabled.
   · JWT auth is{{ if not .Values.auth.jwt.enabled }} not{{end}} enabled.
   · OAuth 2.0 is{{ if not .Values.auth.oauth2.enabled }} not{{end}} enabled.
+{{- else if (include "resurface.condition.insecure" .) }} temporarily enabled.
+· Use the following command to obtain your credentials:
+
+kubectl get secret trino-irp -n {{ .Release.Namespace }} -o template='{{ `{{ range $k, $v := .data }}{{ $v | base64decode | printf "%s: %s\n" $k }}{{ end }}` }}'
+
+NOTE: BE SURE TO ENABLE TLS AND FULLY SET UP AUTHENTICATION IN ORDER TO USE THE PRODUCT.
 {{- else }} not enabled. {{ end }}
 {{- end }}
 
