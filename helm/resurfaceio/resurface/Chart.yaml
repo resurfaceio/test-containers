@@ -8,13 +8,7 @@ annotations:
   artifacthub.io/prerelease: "false"
   artifacthub.io/changes: |
     - kind: changed
-      description: Upgrade azure-eh image to 1.1.1
-    - kind: changed
-      description: Logging rules now support HTTP traffic by default
-    - kind: fixed
-      description: Secure capture URL for event consumer apps
-    - kind: fixed
-      description: Tolerations required by GKE on ARM for event consumer apps
+      description: Upgrade Resurface image to 3.6.220
 keywords:
   - API
   - HTTP
@@ -46,4 +40,4 @@ maintainers:
 sources:
   - https://github.com/resurfaceio
 icon: https://raw.githubusercontent.com/resurfaceio/insomnia-plugin/master/assets/plugin/icon-alt.svg
-appVersion: 3.6.116
+appVersion: 3.6.220
