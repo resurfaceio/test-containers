@@ -1,0 +1,52 @@
+apiVersion: v1
+entries:
+  resurface:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: changed
+          description: Upgrade Resurface image to 3.6.220
+      artifacthub.io/containsSecurityUpdates: "true"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 3.6.220
+    created: "2024-10-02T14:10:54.739712424Z"
+    dependencies:
+    - condition: ingress.controller.enabled
+      name: kubernetes-ingress
+      repository: https://haproxytech.github.io/helm-charts
+      version: 1.39.4
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.2.0
+    description: Resurface discovers and alerts on quality and security signatures
+      in your API traffic.
+    digest: 0ab899f24a527b1ce77a5a955d220dda46c53dd84ed028f5fe3ad416894dbc49
+    home: https://resurface.io
+    icon: https://raw.githubusercontent.com/resurfaceio/insomnia-plugin/master/assets/plugin/icon-alt.svg
+    keywords:
+    - API
+    - HTTP
+    - SOAP
+    - REST
+    - GraphQL
+    - Triage
+    - Security
+    - Observability
+    - Logs
+    - Monitoring
+    - Troubleshooting
+    - Alerts
+    maintainers:
+    - email: ramon@resurface.io
+      name: Ramón Márquez
+    - email: rob@resurface.io
+      name: Rob Dickinson
+    name: resurface
+    sources:
+    - https://github.com/resurfaceio
+    type: application
+    urls:
+    - https://github.com/resurfaceio/containers/releases/download/resurface-3.8.3/resurface-3.8.3.tgz
+    version: 3.8.3
+generated: "2024-10-02T14:10:54.739722413Z"
