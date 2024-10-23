@@ -8,7 +8,7 @@ annotations:
   artifacthub.io/prerelease: "false"
   artifacthub.io/changes: |
     - kind: changed
-      description: Upgrade Resurface image to 3.6.220
+      description: Upgrade Resurface image to 3.7.34
 keywords:
   - API
   - HTTP

@@ -79,6 +79,8 @@ Container resources and persistent volumes
 {{- $defaultWriteRequestHeaders := "true" -}}
 {{- $defaultWriteResponseBodies := "true" -}}
 {{- $defaultWriteResponseHeaders := "true" -}}
+{{- $defaultWritePiiTokens := "true" -}}
+{{- $defaultSkipProcessingPii := "false" -}}
 {{- $minShards := 3 -}}
 
 {{/*
@@ -114,6 +116,8 @@ Container resources and persistent volumes
 {{- $writeRequestHeaders := .Values.custom.config.writerequestheaders | quote | default $defaultWriteRequestHeaders -}}
 {{- $writeResponseBodies := .Values.custom.config.writeresponsebodies | quote | default $defaultWriteResponseBodies -}}
 {{- $writeResponseHeaders := .Values.custom.config.writeresponseheaders | quote | default $defaultWriteResponseHeaders -}}
+{{- $writePiiTokens := .Values.custom.config.writepiitokens | quote | default $defaultWritePiiTokens -}}
+{{- $skipProcessingPii := .Values.custom.config.skippii | quote | default $defaultSkipProcessingPii -}}
 
 {{/*
   Shard size can be passed with a data unit prefix (k, m, or g)
@@ -153,12 +157,14 @@ Container resources and persistent volumes
 {{- $defaultIcebergMaxSize := 100 -}}
 {{- $defaultIcebergMinSize := 20 -}}
 {{- $defaultIcebergPollingMillis := 20000 -}}
+{{- $defaultIcebergPollingShards := 4 -}}
 {{- $defaultIcebergCompressionCodec := "ZSTD" -}}
 {{- $defaultIcebergFileFormat := "PARQUET" -}}
 
 {{- $icebergMaxSize := .Values.iceberg.config.size.max | default $defaultIcebergMaxSize | int -}}
 {{- $icebergMinSize := .Values.iceberg.config.size.reserved | default $defaultIcebergMinSize | int -}}
 {{- $icebergPollingMillis := .Values.iceberg.config.millis | default $defaultIcebergPollingMillis -}}
+{{- $icebergPollingShards := .Values.iceberg.config.shards | default $defaultIcebergPollingShards -}}
 {{- $icebergCompressionCodec := .Values.iceberg.config.codec | default $defaultIcebergCompressionCodec -}}
 {{- $icebergFileFormat := .Values.iceberg.config.format | default $defaultIcebergFileFormat -}}
 
@@ -247,7 +253,13 @@ Container resources and persistent volumes
               value: {{ $writeResponseBodies | trimAll "\"" | quote }}
             - name: WRITE_RESPONSE_HEADERS
               value: {{ $writeResponseHeaders | trimAll "\"" | quote }}
+            - name: WRITE_PII_TOKENS
+              value: {{ $writePiiTokens | trimAll "\"" | quote  }}
+            - name: SKIP_PROCESSING_PII
+              value: {{ $skipProcessingPii | trimAll "\"" | quote  }}
             {{- if $icebergIsEnabled }}
+            - name: ICEBERG_ENABLED
+              value: true
             - name: ICEBERG_SIZE_MAX
               value: {{ mul $unitsCF $icebergMaxSize | printf "%dg" }}
             - name: ICEBERG_SIZE_RESERVED
@@ -268,6 +280,8 @@ Container resources and persistent volumes
               value: {{ printf "s3a://%s/" $icebergS3BucketName }}
             - name: ICEBERG_POLLING_MILLIS
               value: {{ $icebergPollingMillis | quote }}
+            - name: ICEBERG_POLLING_SHARDS
+              value: {{ $icebergPollingShards | quote }}
             - name: ICEBERG_FILE_FORMAT
               value: {{ $icebergFileFormat | quote }}
             - name: ICEBERG_COMPRESSION_CODEC
