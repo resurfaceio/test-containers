@@ -259,7 +259,7 @@ Container resources and persistent volumes
               value: {{ $skipProcessingPii | trimAll "\"" | quote  }}
             {{- if $icebergIsEnabled }}
             - name: ICEBERG_ENABLED
-              value: true
+              value: {{ .Values.iceberg.enabled | quote }}
             - name: ICEBERG_SIZE_MAX
               value: {{ mul $unitsCF $icebergMaxSize | printf "%dg" }}
             - name: ICEBERG_SIZE_RESERVED
@@ -392,11 +392,12 @@ volumes:
 Coordinator config.properties
 */}}
 {{- define "resurface.config.coordinator" -}}
+{{- $isSecure := default "" .Values.provider | eq "ibm-openshift" | or .Values.ingress.tls.enabled -}}
 coordinator=true
 discovery.uri=http://localhost:7700
 node-scheduler.include-coordinator=true
-{{ if default "" .Values.provider | eq "ibm-openshift" | or .Values.ingress.tls.enabled -}}
-http-server.process-forwarded=true
+http-server.process-forwarded={{ $isSecure | ternary "true" "ignore" }}
+{{ if $isSecure -}}
 http-server.authentication.allow-insecure-over-http=true
 {{ include "resurface.config.auth" . -}}
 {{- end }}
