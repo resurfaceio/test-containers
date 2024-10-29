@@ -59,6 +59,14 @@ iceberg:
       region:
       accesskey:
       secretkey:
+  azure:
+    enabled: false
+    accountname:
+    containername:
+    auth:
+      type: "ACCESS_KEY"
+      accesskey:
+
   config:
     format: PARQUET
     codec: ZSTD

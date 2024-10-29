@@ -68,6 +68,7 @@ Container resources and persistent volumes
 {{- $validPollingCycles := list "default" "off" "fast" "nonstop" -}}
 {{- $validIcebergCompressionCodecs := list "ZSTD" "LZ4" "SNAPPY" "GZIP" -}}
 {{- $validIcebergFileFormats := list "ORC" "PARQUET" -}}
+{{- $validIcebergAzureAuth := list "NONE" "ACCESS_KEY" "OAUTH" -}}
 
 {{/* Defaults for DB environment variables */}}
 {{- $defaultDBSize := 4 -}}
@@ -161,6 +162,9 @@ Container resources and persistent volumes
 {{- $defaultIcebergCompressionCodec := "ZSTD" -}}
 {{- $defaultIcebergFileFormat := "PARQUET" -}}
 
+{{- $defaultIcebergAzureAuthType := "ACCESS_KEY" -}}
+{{- $defaultIcebergAzureEndpoint := "core.windows.net" -}}
+
 {{- $icebergMaxSize := .Values.iceberg.config.size.max | default $defaultIcebergMaxSize | int -}}
 {{- $icebergMinSize := .Values.iceberg.config.size.reserved | default $defaultIcebergMinSize | int -}}
 {{- $icebergPollingMillis := .Values.iceberg.config.millis | default $defaultIcebergPollingMillis -}}
@@ -172,9 +176,16 @@ Container resources and persistent volumes
 {{- $icebergS3URL := "" -}}
 {{- $icebergS3BucketName := "" -}}
 
+{{- $icebergAzureStorageAuth := .Values.iceberg.azure.auth.type | default $defaultIcebergAzureAuthType -}}
+{{- $icebergAzureStorageEndpoint := .Values.iceberg.azure.endpoint | default $defaultIcebergAzureEndpoint -}}
+{{- $icebergAzureStorageAccessKey := "" -}}
+{{- $icebergAzureStorageAccountName := "" -}}
+{{- $icebergAzureStorageContainerName := "" -}}
+
+
 {{- if $icebergIsEnabled -}}
-  {{- if and .Values.minio.enabled .Values.iceberg.s3.enabled -}}
-    {{ fail "MinIO and AWS S3 iceberg deployments are mutually exclusive. Please enable only one." }}
+  {{- if add (int .Values.minio.enabled) (int .Values.iceberg.s3.enabled) (int .Values.iceberg.azure.enabled) | le 2 -}}
+    {{- fail "MinIO, AWS S3, and Azure Storage iceberg deployments are all mutually exclusive. Please enable only one." -}}
   {{- else if .Values.minio.enabled -}}
     {{- $minioSize := .Values.minio.persistence.size | trimSuffix "Gi" | int -}}
     {{- $icebergMaxSize = mul $minioSize .Values.minio.replicas -}}
@@ -188,8 +199,18 @@ Container resources and persistent volumes
     {{- $icebergS3Secret = "resurface-s3-creds" -}}
     {{- $icebergS3BucketName = required "Required value: AWS S3 bucket unique name" .Values.iceberg.s3.bucketname -}}
     {{- $icebergS3URL = required "Required value: AWS region where the S3 bucket is deployed" .Values.iceberg.s3.aws.region | printf "https://s3.%s.amazonaws.com" -}}
+  {{- else if .Values.iceberg.azure.enabled -}}
+     {{- if has $icebergAzureStorageAuth $validIcebergAzureAuth | not -}}
+        {{- fail "Invalid authentication for Azure Storage access. Supported values are: ACCESS_KEY, OAUTH, NONE" -}}
+     {{- end -}}
+     {{- if and (eq "ACCESS_KEY" $icebergAzureStorageAuth) (empty .Values.iceberg.azure.auth.accesskey) -}}
+      {{- fail "Required value for Azure Storage authentication: Azure Storage access key" -}}
+    {{- end -}}
+    {{- $icebergAzureStorageAccessKey = .Values.iceberg.azure.auth.accesskey -}}
+    {{- $icebergAzureStorageAccountName = .Values.iceberg.azure.accountname -}}
+    {{- $icebergAzureStorageContainerName = .Values.iceberg.azure.containername -}}
   {{- else -}}
-    {{- fail "An object storage provider must be enabled for Iceberg. Supported values are: minio, s3" -}}
+    {{- fail "An object storage provider must be enabled for Iceberg. Supported values are: minio, s3, azure" -}}
   {{- end -}}
 
   {{/* Iceberg validation */}}
@@ -264,6 +285,14 @@ Container resources and persistent volumes
               value: {{ mul $unitsCF $icebergMaxSize | printf "%dg" }}
             - name: ICEBERG_SIZE_RESERVED
               value: {{ mul $unitsCF $icebergMinSize | printf "%dg" }}
+            {{- if .Values.iceberg.azure.enabled }}
+            - name: ICEBERG_AZURE_AUTH_TYPE
+              value: {{ $icebergAzureStorageAuth | quote }}
+            - name: ICEBERG_AZURE_ACCESS_KEY
+              value: {{ $icebergAzureStorageAccessKey | quote }}
+            - name: ICEBERG_S3_LOCATION
+              value: {{ printf "abfs://%s@%s.dfs.core.windows.net" $icebergAzureStorageContainerName $icebergAzureStorageAccountName }}
+            {{- else }}
             - name: ICEBERG_S3_URL
               value: {{ $icebergS3URL | quote }}
             - name: ICEBERG_S3_USER
@@ -278,6 +307,7 @@ Container resources and persistent volumes
                   key: rootPassword
             - name: ICEBERG_S3_LOCATION
               value: {{ printf "s3a://%s/" $icebergS3BucketName }}
+            {{- end }}
             - name: ICEBERG_POLLING_MILLIS
               value: {{ $icebergPollingMillis | quote }}
             - name: ICEBERG_POLLING_SHARDS

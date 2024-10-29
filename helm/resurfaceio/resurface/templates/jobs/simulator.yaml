@@ -1,7 +1,7 @@
 {{- if and .Values.qa.enabled .Values.qa.simulator.enabled -}}
-{{- $version := default "3.6.4" .Values.qa.simulator.version -}}
+{{- $version := default "3.6.5" .Values.qa.simulator.version -}}
 {{- $initialSleepSeconds := default 180 .Values.qa.simulator.sleep.init | int -}}
-{{- $workload := default "RestSmall2" .Values.qa.simulator.workload -}}
+{{- $workload := default "RestSmall3" .Values.qa.simulator.workload -}}
 {{- $host := printf "worker.%s" .Release.Namespace -}}
 {{- $port := "7701" -}}
 {{- if and .Values.ingress.enabled .Values.ingress.controller.enabled -}}
